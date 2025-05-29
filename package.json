@@ -1,0 +1,25 @@
+{
+  "name": "svgparsergen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "parser:win": "lua54 ./core/parser.lua",
+    "parser": "lua ./core/parser.lua"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adam-Elmi/SvgParserGen.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Adam-Elmi/SvgParserGen/issues"
+  },
+  "homepage": "https://github.com/Adam-Elmi/SvgParserGen#readme",
+  "devDependencies": {
+    "svgo": "^3.3.2"
+  }
+}

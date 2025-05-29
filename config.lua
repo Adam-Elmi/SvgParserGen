@@ -4,6 +4,8 @@ local config = {
   default_output_location = "./generated",
   use_specified_location = true,
   specified_location = "./src/icons",
+  allow_typescript = true,
+  prettify = false
 }
 
 function config.set(key, value)
