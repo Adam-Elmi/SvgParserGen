@@ -42,14 +42,14 @@ end
 function commands.run()
     if config then
         if config.default_output_location and config.default_output_location ~= "" then
-            if args[1] == "-s" and args[2] then
-                return parser:singleParse(args[2], config.default_output_location)
+            if args[1] == "-s" and args[2] and args[3] == "-o" and args[4] then
+                return parser:singleParse(args[2], config.default_output_location, args[4])
             else
                 print(select(2, utils.customError("Error", "Invalid Command!")))
             end
         else
             if args[1] == "-s" and args[2] and args[3] == "-o" and args[4] then
-                return parser:singleParse(args[2], args[4])
+                return parser:singleParse(args[2], args[4], "react")
             else
                 print(select(2, utils.customError("Error", "Invalid Command!")))
             end
