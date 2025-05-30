@@ -1,4 +1,5 @@
-local attributes = {
+local attributes = {}
+attributes.kebab_attributes = {
   "stroke-width",
   "stroke-linecap",
   "stroke-linejoin",
@@ -29,5 +30,7 @@ local attributes = {
   "key-splines",
   "key-times"
 }
+
+attributes.special_attributes = { "class", "xlink:href" }
 
 return attributes
