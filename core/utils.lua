@@ -192,7 +192,7 @@ local function handleAttr(content, attributes, sep)
 end
 
 
-function utils.handleAttributes(content, kebab_attributes, special_attributes)
+function utils.handleRawSvg(content, kebab_attributes, special_attributes)
     if content then
         if kebab_attributes and #kebab_attributes > 0 then
             content = handleAttr(content, kebab_attributes, "-")
@@ -202,6 +202,10 @@ function utils.handleAttributes(content, kebab_attributes, special_attributes)
         end
         return content
     end
+end
+
+function utils.exists(path)
+    return os.rename(path, path) ~= nil
 end
 
 return utils
