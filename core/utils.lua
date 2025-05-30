@@ -1,3 +1,5 @@
+local config = require("config")
+
 local utils = {}
 
 function utils.customError(errorTitle, errorMessage)
@@ -23,6 +25,12 @@ function utils.colorize(text, color)
         magenta = "\27[35m",
         cyan = "\27[36m",
         white = "\27[37m",
+        black = "\27[30m",
+        bright_black = "\27[90m",
+        bright_green = "\27[92m",
+        bright_yellow = "\27[93m",
+        bright_blue = "\27[94m",
+        bright_white = "\27[97m",
     }
 
     text = text or ""
@@ -41,7 +49,7 @@ function utils.getPlatform()
 end
 
 function utils.winPathFormat(path)
-    if path then
+    if path and config.use_windows_format_path then
         if utils.getPlatform() == "windows" then
             path = string.gsub(path, "/", "\\")
             return path
@@ -98,14 +106,6 @@ function utils.getFiles(path)
     else
         local _, result = utils.customError("Error", "Path must be defined and a string type")
         return result
-    end
-end
-
-local f = utils.getFiles("./core/example")
-
-if f then
-    for k, v in pairs(f) do
-        print(v)
     end
 end
 
