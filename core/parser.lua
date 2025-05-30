@@ -34,4 +34,4 @@ function Parser:singleParse(targetFile, outputPath)
     end
 end
 
-print(Parser:singleParse("./core/example/test.svg"))
+return Parser
