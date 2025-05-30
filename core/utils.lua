@@ -208,4 +208,17 @@ function utils.exists(path)
     return os.rename(path, path) ~= nil
 end
 
+function utils.addPadding(items, label, len)
+    local maxLength = 0
+    if items then
+        for k, _ in pairs(items) do
+            if #k > maxLength then
+                maxLength = #k
+            end
+        end
+    end
+    local pad_len = len and (maxLength - #label + len) or maxLength - #label
+    return utils.colorize(label, "magenta") .. string.rep(" ", pad_len)
+end
+
 return utils
