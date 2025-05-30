@@ -6,6 +6,8 @@ local config = {
   default_output_location = "./generated",
   use_specified_location = true,
   specified_location = "./src/icons",
+  import_as_default = false,
+  template_attributes_to_include = {width = true, height = true},
   use_windows_format_path = true,
   accepted_extensions = {
     svg = true,
