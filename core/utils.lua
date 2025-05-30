@@ -59,30 +59,56 @@ function utils.winPathFormat(path)
     end
 end
 
-function utils.getFile(path)
+local function includes(contents, value)
+    if contents then
+        if value and value ~= "" and type(value) == "string" then
+            if contents[value] then
+                return true
+            else
+                return false
+            end
+        end
+    end
+end
+
+
+function utils.getFile(path, extension)
     if path and type(path) == "string" then
         local file = io.open(utils.winPathFormat(path), "r")
         if file then
-            local extension = string.match(path, "%.svg$")
-            local content = file:read("*a")
-            file:close()
-            return {
-                extension = extension,
-                content = content
-            }
+            if extension and extension ~= "" then
+                if includes(config.accepted_extensions, extension) then
+                    local ext = string.match(path, "%." .. string.format("%s$", extension))
+                    local content = file:read("*a")
+                    file:close()
+                    if content and content ~= "" then
+                        return {
+                            extension = ext,
+                            content = content
+                        }
+                    else
+                        return select(2, utils.customError("Content Error",
+                            "File content is empty!"))
+                    end
+                else
+                    return select(2, utils.customError("Extension Error", "Extension is not supported!"))
+                end
+            else
+                return select(2, utils.customError("Extension Error",
+                    "Extension is not provided! Please provide the extension"))
+            end
         else
-            return "File is not found!"
+            return select(2, utils.customError("Error", "Path must be defined and a string type"))
         end
     else
-        local _, result = utils.customError("Error", "Path must be defined and a string type")
-        return result
+        return select(2, utils.customError("Error", "Path must be defined and a string type"))
     end
 end
 
 local function getFileName(text)
     if text and type(text) == "string" then
         for file in string.gmatch(text, "[%w%._%-]+%.svg") do
-           return file
+            return file
         end
     end
 end
@@ -104,8 +130,77 @@ function utils.getFiles(path)
         end
         return files
     else
-        local _, result = utils.customError("Error", "Path must be defined and a string type")
+        return select(2, utils.customError("Error", "Path must be defined and a string type"))
+    end
+end
+
+function utils.split(str, sep)
+    local result = {}
+    if str and str ~= "" then
+        for match in string.gmatch(str, "([^" .. sep .. "]+)") do
+            table.insert(result, match)
+        end
         return result
+    end
+end
+
+function utils.toCamelCase(text, sep)
+    local parts = utils.split(text, sep)
+    local result = ""
+    for i = 1, #parts do
+        if i == 1 then
+            result = result .. string.lower(parts[i])
+        else
+            result = result .. string.upper(string.sub(parts[i], 1, 1)) .. string.lower(string.sub(parts[i], 2))
+        end
+    end
+    return result
+end
+
+function utils.escape_pattern(s)
+    return s:gsub("([^%w])", "%%%1")
+end
+
+local function handleAttr(content, attributes, sep)
+    if content and attributes then
+        for _, v in ipairs(attributes) do
+            if v then
+                if sep == "-" then
+                    local camelCaseValue = utils.toCamelCase(v, sep)
+                    local safeValue = v:gsub("([^%w])", "%%%1")
+                    content = string.gsub(content, safeValue, camelCaseValue)
+                elseif sep == "special" then
+                    local specialValue = ""
+                    if v == "class" then
+                        specialValue = "className"
+                    elseif v == "xlink:href" then
+                        specialValue = "xlinkHref"
+                    else
+                        return select(2, utils.customError("Special Error", "Unrecognized special attribute"))
+                    end
+                    local safeValue = v:gsub("([^%w])", "%%%1")
+                    content = string.gsub(content, safeValue, specialValue)
+                else
+                    return select(2, utils.customError("Error", "Separator is undefined or invalid"))
+                end
+            else
+                return select(2, utils.customError("Content Error", "Attribute is nil or false"))
+            end
+        end
+    end
+    return content
+end
+
+
+function utils.handleAttributes(content, kebab_attributes, special_attributes)
+    if content then
+        if kebab_attributes and #kebab_attributes > 0 then
+            content = handleAttr(content, kebab_attributes, "-")
+        end
+        if special_attributes and #special_attributes > 0 then
+            content = handleAttr(content, special_attributes, "special")
+        end
+        return content
     end
 end
 
