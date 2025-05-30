@@ -221,4 +221,22 @@ function utils.addPadding(items, label, len)
     return utils.colorize(label, "magenta") .. string.rep(" ", pad_len)
 end
 
+function utils.getContent(path)
+    if path and path ~= "" then
+        local file = io.open(path, "r")
+        if file then
+            local content = file:read("a")
+            file:close()
+            if content ~= "" then
+                return content
+            else
+                print(select(2, utils.customError("Content Error", "Content is empty!")))
+            end
+        else 
+            print(select(2, utils.customError("File Error", "File is not found!")))
+        end
+    end
+end
+
+
 return utils
