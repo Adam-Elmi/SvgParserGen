@@ -12,7 +12,6 @@ attributes.kebab_attributes = {
   "color-rendering",
   "shape-rendering",
   "text-rendering",
-  "view-box",
   "gradient-units",
   "pattern-units",
   "pattern-content-units",
