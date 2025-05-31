@@ -24,6 +24,50 @@ function commands.info()
             print(utils.addPadding(project.github, "homepage:", 2) .. utils.colorize(project.github.homepage, "blue"))
             print(utils.addPadding(project.github, "readme:", 2) .. utils.colorize(project.github.readme, "blue"))
             print(utils.addPadding(project.github, "issue:", 2) .. utils.colorize(project.github.issue, "blue"))
+        end
+    end
+end
+
+commands.info()
+
+function commands.toJsxFile()
+    if config then
+        if config.default_output_location and config.default_output_location ~= "" then
+            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] then
+                local file_path = config.default_output_location .. "/" .. args[4] .. "." .. config.default_output_type
+                local file = io.open(file_path, "r")
+                utils.getFileDetails(file, args)
+                print(args[4])
+                return parser:toJSX(args[2], config.default_output_location, args[4])
+            else
+                print(select(2, utils.customError("Error", "Invalid Command!")))
+            end
+        else
+            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] == "--name" and args[6] then
+                return parser:toJSX(args[2], args[4], args[6])
+            else
+                print(select(2, utils.customError("Error", "Invalid Command!")))
+            end
+        end
+    end
+end
+
+function commands.run()
+    if args[1] == "-v"
+        or args[1] == "--version"
+        or args[1] == "--name"
+        or args[1] == "-d"
+        or args[1] == "--description"
+        or args[1] == "--author"
+        or args[1] == "--license"
+        or args[1] == "-gh"
+        or args[1] == "github" then
+        return commands.info()
+    elseif args[1] and
+        args[1] == "-s"
+        and args[2]
+        and (args[3] == "-o" or args[3] == "--output") and args[4] then
+        return commands.toJsxFile()
         else
             if args[1] then
                 print(select(2,
@@ -35,28 +79,9 @@ function commands.info()
                     utils.colorize(project.description, "bright_blue")
                 )
             end
-        end
     end
 end
 
-function commands.run()
-    if config then
-        if config.default_output_location and config.default_output_location ~= "" then
-            if args[1] == "-s" and args[2] and args[3] == "-o" and args[4] then
-                return parser:singleParse(args[2], config.default_output_location, args[4])
-            else
-                print(select(2, utils.customError("Error", "Invalid Command!")))
-            end
-        else
-            if args[1] == "-s" and args[2] and args[3] == "-o" and args[4] then
-                return parser:singleParse(args[2], args[4], "react")
-            else
-                print(select(2, utils.customError("Error", "Invalid Command!")))
-            end
-        end
-    end
-end
-
-print(commands.run())
+commands.run()
 
 return commands
