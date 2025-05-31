@@ -1,5 +1,4 @@
 local config = require("config")
-local attributes = require("core.attributes")
 
 local utils = {}
 
@@ -161,48 +160,6 @@ function utils.escape_pattern(s)
     return s:gsub("([^%w])", "%%%1")
 end
 
-local function handleAttr(content, attributes, sep)
-    if content and attributes then
-        for _, v in ipairs(attributes) do
-            if v then
-                if sep == "-" then
-                    local camelCaseValue = utils.toCamelCase(v, sep)
-                    local safeValue = utils.escape_pattern(v)
-                    content = string.gsub(content, safeValue, camelCaseValue)
-                elseif sep == "special" then
-                    local specialValue = ""
-                    if v == "class" then
-                        specialValue = "className"
-                    elseif v == "xlink:href" then
-                        specialValue = "xlinkHref"
-                    else
-                        return select(2, utils.customError("Special Error", "Unrecognized special attribute"))
-                    end
-                    local safeValue = utils.escape_pattern(v)
-                    content = string.gsub(content, safeValue, specialValue)
-                else
-                    return select(2, utils.customError("Error", "Separator is undefined or invalid"))
-                end
-            else
-                return select(2, utils.customError("Content Error", "Attribute is nil or false"))
-            end
-        end
-    end
-    return content
-end
-
-function utils.handleRawSvg(content, kebab_attributes, special_attributes)
-    if content then
-        if kebab_attributes and #kebab_attributes > 0 then
-            content = handleAttr(content, kebab_attributes, "-")
-        end
-        if special_attributes and #special_attributes > 0 then
-            content = handleAttr(content, special_attributes, "special")
-        end
-        return content
-    end
-end
-
 function utils.exists(path)
     return os.rename(path, path) ~= nil
 end
@@ -279,29 +236,6 @@ function utils.lastIndex(str, substr)
         end
     end
     return maxLength
-end
-
-function utils.handleJSX(content)
-    local kebab_attri = {}
-    for _, v in ipairs(attributes.kebab_attributes) do
-        kebab_attri[v] = utils.toCamelCase(v, "-")
-    end
-    if content then
-        local svg_content = string.match(content, "<svg.-</svg>")
-        if svg_content then
-            for k, v in pairs(kebab_attri) do
-                svg_content = string.gsub(svg_content, v, k)
-            end
-            for _, v in ipairs(attributes.special_attributes) do
-                if v == "class" then
-                    svg_content = string.gsub(svg_content, "className", v)
-                elseif v == "xlink:href" then
-                    svg_content = string.gsub(svg_content, "xlinkHref", v)
-                end
-            end
-            return svg_content
-        end
-    end
 end
 
 print(utils.handleJSX())
