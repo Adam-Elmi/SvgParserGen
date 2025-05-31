@@ -2,19 +2,6 @@ local config = require("config")
 
 local utils = {}
 
-function utils.customError(errorTitle, errorMessage)
-    local function throwError()
-        error(utils.colorize(errorTitle, "red") .. ": " .. utils.colorize(errorMessage, "magenta"))
-    end
-
-    local function errorHandler(err)
-        return utils.colorize("Caught Error: ", "red") .. utils.colorize(err, "yellow")
-    end
-
-    local ok, result = xpcall(throwError, errorHandler)
-    return ok, result
-end
-
 function utils.colorize(text, color)
     local colors = {
         reset = "\27[0m",
@@ -36,6 +23,19 @@ function utils.colorize(text, color)
     text = text or ""
 
     return (colors[color] or colors.reset) .. text .. colors.reset
+end
+
+function utils.customError(errorTitle, errorMessage)
+    local function throwError()
+        error(utils.colorize(errorTitle, "red") .. ": " .. utils.colorize(errorMessage, "magenta"))
+    end
+
+    local function errorHandler(err)
+        return utils.colorize("Caught Error: ", "red") .. utils.colorize(err, "yellow")
+    end
+
+    local ok, result = xpcall(throwError, errorHandler)
+    return ok, result
 end
 
 function utils.getPlatform()
@@ -70,7 +70,6 @@ local function includes(contents, value)
         end
     end
 end
-
 
 function utils.getFile(path, extension)
     if path and type(path) == "string" then
@@ -191,7 +190,6 @@ local function handleAttr(content, attributes, sep)
     return content
 end
 
-
 function utils.handleRawSvg(content, kebab_attributes, special_attributes)
     if content then
         if kebab_attributes and #kebab_attributes > 0 then
@@ -232,10 +230,35 @@ function utils.getContent(path)
             else
                 print(select(2, utils.customError("Content Error", "Content is empty!")))
             end
-        else 
+        else
             print(select(2, utils.customError("File Error", "File is not found!")))
         end
     end
+end
+
+function utils.getFileDetails(file, args)
+    local size = 0
+    if file then
+        file:seek("end")
+        size = file:seek()
+        file:close()
+    end
+    local ext = config.default_output_type
+    local location = config.default_output_location
+    local now = os.date("*t")
+    local date_str = string.format("%04d-%02d-%02d", now.year, now.month, now.day)
+    local time_str = string.format("%02d:%02d:%02d", now.hour, now.min, now.sec)
+    print(utils.colorize("File Details:", "magenta"))
+    print("  Name: " .. utils.colorize(args[4] .. "." .. ext, "bright_yellow"))
+    print("  Location: " .. utils.colorize(location, "blue"))
+    print("  Extension: " .. utils.colorize(ext, "cyan"))
+    print("  Size: " .. utils.colorize(string.format("%.2f kb", size / 1024), "bright_green"))
+    print("  Date: " .. utils.colorize(date_str, "bright_blue"))
+    print("  Time: " .. utils.colorize(time_str, "bright_blue"))
+    print(utils.colorize(
+        "Succefully created " ..
+        utils.colorize(args[4] .. "." .. config.default_output_type, "bright_yellow") ..
+        " in " .. utils.colorize(config.default_output_location, "blue"), "bright_green"))
 end
 
 
