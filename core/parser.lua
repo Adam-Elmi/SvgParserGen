@@ -12,7 +12,7 @@ function Parser:new()
     return obj
 end
 
-function Parser:toJSX(targetFile, outputPath, outputFile)
+function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
     if utils.exists(targetFile) then
         if (outputPath and utils.exists(outputPath)) or (config.default_output_location and utils.exists(config.default_output_location)) then
             local file = utils.getFile(targetFile, "svg")
@@ -21,21 +21,23 @@ function Parser:toJSX(targetFile, outputPath, outputFile)
                     if file.content and file.content ~= "" then
                         if string.match(targetFile, "%.svg$") then
                             local compName = (config.default_component_name ~= "" and config.default_component_name) or
-                            "ComponentIcon"
+                                "ComponentIcon"
                             local template_file = utils.getContent("./templates/react.tpl")
                             local component_file = io.open(
                                 string.format("%s/%s.%s", outputPath, outputFile, config.default_output_type),
                                 "w")
                             if component_file and template_file then
                                 if config.import_as_default then
-                                    component_file:write(string.format(template_file, "default", compName, "",
+                                    component_file:write(string.format(template_file, "default",
+                                        (componentName and componentName ~= "" and componentName or compName), "",
                                         utils.handleRawSvg(
                                             file.content,
                                             attributes.kebab_attributes,
                                             attributes.special_attributes
                                         )))
                                 else
-                                    component_file:write(string.format(template_file, "", compName, "",
+                                    component_file:write(string.format(template_file, "",
+                                        (componentName and componentName ~= "" and componentName or compName), "",
                                         utils.handleRawSvg(
                                             file.content,
                                             attributes.kebab_attributes,
@@ -59,14 +61,15 @@ function Parser:toJSX(targetFile, outputPath, outputFile)
                                 )
                             )))
                         end
+                    else
+                        print(select(2, utils.customError(
+                            "File Error",
+                            string.format(
+                                "The SVG file '%s' is empty or not valid. Please make sure the file has SVG content.",
+                                targetFile)
+                        )
+                        ))
                     end
-                    print(select(2, utils.customError(
-                        "File Error",
-                        string.format(
-                            "The SVG file '%s' is empty or not valid. Please make sure the file has SVG content.",
-                            targetFile)
-                    )
-                    ))
                 end
             end
         else
