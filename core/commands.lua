@@ -33,20 +33,20 @@ commands.info()
 function commands.toJsxFile()
     if config then
         if config.default_output_location and config.default_output_location ~= "" then
-            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] then
+            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] == "-c" and args[6] then
                 local file_path = config.default_output_location .. "/" .. args[4] .. "." .. config.default_output_type
                 local file = io.open(file_path, "r")
                 local tarFile = utils.getFile(args[2], "svg")
                 if string.match(args[2], "%.svg$") and tarFile.content and tarFile.content ~= "" then
                     utils.getFileDetails(file, args)
                 end
-                return parser:toJSX(args[2], config.default_output_location, args[4])
+                return parser:toJSX(args[2], config.default_output_location, args[4], args[6])
             else
                 print(select(2, utils.customError("Error", "Invalid Command!")))
             end
         else
-            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] == "--name" and args[6] then
-                return parser:toJSX(args[2], args[4], args[6])
+            if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] == "--name" and args[6] and args[7] == "-c" and args[8] then
+                return parser:toJSX(args[2], args[4], args[6], args[8])
             else
                 print(select(2, utils.customError("Error", "Invalid Command!")))
             end
@@ -68,7 +68,7 @@ function commands.run()
     elseif args[1] and
         args[1] == "-s"
         and args[2]
-        and (args[3] == "-o" or args[3] == "--output") and args[4] then
+        and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] and args[6] then
         return commands.toJsxFile()
         else
             if args[1] then
