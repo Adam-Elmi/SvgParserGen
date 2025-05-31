@@ -12,6 +12,31 @@ function Parser:new()
     return obj
 end
 
+local function missingFile(file, outputFile)
+    local missing = {}
+    if not file then table.insert(missing, "file") end
+    if not outputFile then table.insert(missing, "outputFile") end
+    print(select(2,
+        utils.customError(
+            "File Error",
+            string.format(
+                "The specified %s was not found or could not be accessed. Please check that the %s exists and the path is correct.",
+                table.concat(missing, " and "),
+                table.concat(missing, " and ")
+            )
+        )))
+end
+
+local function emptyContent(targetFile)
+    print(select(2, utils.customError(
+        "File Error",
+        string.format(
+            "The SVG file '%s' is empty or not valid. Please make sure the file has SVG content.",
+            targetFile)
+    )
+    ))
+end
+
 function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
     if utils.exists(targetFile) then
         if (outputPath and utils.exists(outputPath)) or (config.default_output_location and utils.exists(config.default_output_location)) then
@@ -62,13 +87,7 @@ function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
                             )))
                         end
                     else
-                        print(select(2, utils.customError(
-                            "File Error",
-                            string.format(
-                                "The SVG file '%s' is empty or not valid. Please make sure the file has SVG content.",
-                                targetFile)
-                        )
-                        ))
+                        emptyContent(targetFile)
                     end
                 end
             end
@@ -90,4 +109,43 @@ function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
     end
 end
 
+function Parser:toSVG(targetFile, outputPath, outputFile)
+    if utils.exists(targetFile) then
+        local file = utils.getFile(targetFile, "jsx")
+        if file and outputFile then
+            if outputPath or (config.default_output_location and config.default_output_location ~= "") then
+                if file.content and file.content ~= "" then
+                    local newFile = io.open(string.format("%s/%s.%s", outputPath, outputFile, "svg"), "w")
+                    if newFile then
+                        newFile:write(utils.handleJSX(file.content))
+                    end
+                else
+                    emptyContent(targetFile)
+                end
+            else
+                print(select(2,
+                    utils.customError(
+                        "Path Error",
+                        string.format(
+                            "The specified path '%s' was not found or could not be accessed. Please check that the path is correct.",
+                            config.default_output_location
+                        )
+                    )))
+            end
+        else
+            missingFile(file, outputFile)
+        end
+    else
+        print(select(2,
+            utils.customError(
+                "File Error",
+                string.format(
+                    "The specified file '%s' was not found or could not be accessed. Please check that the file exists and the path is correct.",
+                    targetFile
+                )
+            )))
+    end
+end
+
+Parser:toSVG("./generated/hello.jsx", "./core/example", "new.test")
 return Parser
