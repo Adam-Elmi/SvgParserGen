@@ -261,5 +261,23 @@ function utils.getFileDetails(file, args)
         " in " .. utils.colorize(config.default_output_location, "blue"), "bright_green"))
 end
 
+function utils.lastIndex(str, substr)
+    local str_table = {}
+    local maxLength = 0
+    if (str and str ~= "") and substr then
+        for char in string.gmatch(str, "%S") do
+            table.insert(str_table, char)
+        end
+
+        for i, v in ipairs(str_table) do
+            if v == substr then
+                if i > maxLength then
+                    maxLength = i
+                end
+            end
+        end
+    end
+    return maxLength
+end
 
 return utils
