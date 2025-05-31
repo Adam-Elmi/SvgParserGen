@@ -1,4 +1,5 @@
 local config = require("config")
+local attributes = require("core.attributes")
 
 local utils = {}
 
@@ -166,7 +167,7 @@ local function handleAttr(content, attributes, sep)
             if v then
                 if sep == "-" then
                     local camelCaseValue = utils.toCamelCase(v, sep)
-                    local safeValue = v:gsub("([^%w])", "%%%1")
+                    local safeValue = utils.escape_pattern(v)
                     content = string.gsub(content, safeValue, camelCaseValue)
                 elseif sep == "special" then
                     local specialValue = ""
@@ -177,7 +178,7 @@ local function handleAttr(content, attributes, sep)
                     else
                         return select(2, utils.customError("Special Error", "Unrecognized special attribute"))
                     end
-                    local safeValue = v:gsub("([^%w])", "%%%1")
+                    local safeValue = utils.escape_pattern(v)
                     content = string.gsub(content, safeValue, specialValue)
                 else
                     return select(2, utils.customError("Error", "Separator is undefined or invalid"))
@@ -280,4 +281,28 @@ function utils.lastIndex(str, substr)
     return maxLength
 end
 
+function utils.handleJSX(content)
+    local kebab_attri = {}
+    for _, v in ipairs(attributes.kebab_attributes) do
+        kebab_attri[v] = utils.toCamelCase(v, "-")
+    end
+    if content then
+        local svg_content = string.match(content, "<svg.-</svg>")
+        if svg_content then
+            for k, v in pairs(kebab_attri) do
+                svg_content = string.gsub(svg_content, v, k)
+            end
+            for _, v in ipairs(attributes.special_attributes) do
+                if v == "class" then
+                    svg_content = string.gsub(svg_content, "className", v)
+                elseif v == "xlink:href" then
+                    svg_content = string.gsub(svg_content, "xlinkHref", v)
+                end
+            end
+            return svg_content
+        end
+    end
+end
+
+print(utils.handleJSX())
 return utils
