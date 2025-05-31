@@ -36,8 +36,10 @@ function commands.toJsxFile()
             if args[1] == "-s" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] then
                 local file_path = config.default_output_location .. "/" .. args[4] .. "." .. config.default_output_type
                 local file = io.open(file_path, "r")
-                utils.getFileDetails(file, args)
-                print(args[4])
+                local tarFile = utils.getFile(args[2], "svg")
+                if string.match(args[2], "%.svg$") and tarFile.content and tarFile.content ~= "" then
+                    utils.getFileDetails(file, args)
+                end
                 return parser:toJSX(args[2], config.default_output_location, args[4])
             else
                 print(select(2, utils.customError("Error", "Invalid Command!")))
