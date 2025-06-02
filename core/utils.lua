@@ -238,5 +238,4 @@ function utils.lastIndex(str, substr)
     return maxLength
 end
 
-print(utils.handleJSX())
 return utils
