@@ -213,5 +213,4 @@ function Parser:toSVG(targetFile, outputPath, outputFile)
     end
 end
 
-Parser:toSVG("./generated/hello.jsx", "./core/example", "new.test")
 return Parser
