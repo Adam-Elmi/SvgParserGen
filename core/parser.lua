@@ -1,6 +1,7 @@
 local config = require("config")
 local utils = require("core.utils")
 local attributes = require("core.attributes")
+local errors = require("core.errors")
 
 local Parser = {}
 Parser.__index = Parser
@@ -11,7 +12,6 @@ function Parser:new()
     setmetatable(obj, self)
     return obj
 end
-
 
 local function handleAttr(content, attr, sep)
     if content and attr then
@@ -28,15 +28,15 @@ local function handleAttr(content, attr, sep)
                     elseif v == "xlink:href" then
                         specialValue = "xlinkHref"
                     else
-                        return select(2, utils.customError("Special Error", "Unrecognized special attribute"))
+                        return select(2, errors.customError("Special Error", "Unrecognized special attribute"))
                     end
-                    local safeValue = utils.escape_pattern(v)
+                    local safeValue = errors.escape_pattern(v)
                     content = string.gsub(content, safeValue, specialValue)
                 else
-                    return select(2, utils.customError("Error", "Separator is undefined or invalid"))
+                    return select(2, errors.customError("Error", "Separator is undefined or invalid"))
                 end
             else
-                return select(2, utils.customError("Content Error", "Attribute is nil or false"))
+                return select(2, errors.customError("Content Error", "Attribute is nil or false"))
             end
         end
     end
@@ -78,35 +78,10 @@ local function handleJSX(content)
     end
 end
 
-local function missingFile(file, outputFile)
-    local missing = {}
-    if not file then table.insert(missing, "file") end
-    if not outputFile then table.insert(missing, "outputFile") end
-    print(select(2,
-        utils.customError(
-            "File Error",
-            string.format(
-                "The specified %s was not found or could not be accessed. Please check that the %s exists and the path is correct.",
-                table.concat(missing, " and "),
-                table.concat(missing, " and ")
-            )
-        )))
-end
-
-local function emptyContent(targetFile)
-    print(select(2, utils.customError(
-        "File Error",
-        string.format(
-            "The SVG file '%s' is empty or not valid. Please make sure the file has SVG content.",
-            targetFile)
-    )
-    ))
-end
-
 function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
     if utils.exists(targetFile) then
         if (outputPath and utils.exists(outputPath)) or (config.default_output_location and utils.exists(config.default_output_location)) then
-            local file = utils.getFile(targetFile, "svg")
+            local file = utils.getFile(targetFile)
             if config.default_output_type and config.default_output_type ~= "" then
                 if file and outputFile then
                     if file.content and file.content ~= "" then
@@ -138,46 +113,28 @@ function Parser:toJSX(targetFile, outputPath, outputFile, componentName)
                                 component_file:close()
                             else
                                 if outputFile then
-                                    print(select(2,
-                                        utils.customError("File Error", "Failed to open file for writing: " .. outputFile)))
+                                    errors.fileError()
                                 end
                             end
                         else
-                            print(select(2, utils.customError(
-                                "Extension Error",
-                                string.format(
-                                    "Invalid extension file! The target file '%s' must have a .svg extension, but got '.%s'. Please provide a valid SVG file.",
-                                    targetFile,
-                                    file.extension or "unknown"
-                                )
-                            )))
+                            errors.extensionError(targetFile, "svg", file.extension)
                         end
                     else
-                        emptyContent(targetFile)
+                        errors.contentError()
                     end
                 end
             end
         else
-            return select(2,
-                utils.customError("Path Error",
-                    string.format("%s is invalid path! Please provide a valid output path.",
-                        (outputPath or config.default_output_location))))
+            errors.fileError()
         end
     else
-        print(select(2,
-            utils.customError(
-                "File Error",
-                string.format(
-                    "The specified file '%s' was not found or could not be accessed. Please check that the file exists and the path is correct.",
-                    targetFile
-                )
-            )))
+        errors.fileError()
     end
 end
 
 function Parser:toSVG(targetFile, outputPath, outputFile)
     if utils.exists(targetFile) then
-        local file = utils.getFile(targetFile, "jsx")
+        local file = utils.getFile(targetFile)
         if file and outputFile then
             if outputPath or (config.default_output_location and config.default_output_location ~= "") then
                 if file.content and file.content ~= "" then
@@ -186,30 +143,16 @@ function Parser:toSVG(targetFile, outputPath, outputFile)
                         newFile:write(handleJSX(file.content))
                     end
                 else
-                    emptyContent(targetFile)
+                    errors.contentError()
                 end
             else
-                print(select(2,
-                    utils.customError(
-                        "Path Error",
-                        string.format(
-                            "The specified path '%s' was not found or could not be accessed. Please check that the path is correct.",
-                            config.default_output_location
-                        )
-                    )))
+                errors.fileError()
             end
         else
-            missingFile(file, outputFile)
+            errors.fileError()
         end
     else
-        print(select(2,
-            utils.customError(
-                "File Error",
-                string.format(
-                    "The specified file '%s' was not found or could not be accessed. Please check that the file exists and the path is correct.",
-                    targetFile
-                )
-            )))
+        errors.fileError()
     end
 end
 
