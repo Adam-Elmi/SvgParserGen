@@ -1,4 +1,5 @@
 local config = require("config")
+local errors = require("core.errors")
 
 local utils = {}
 
@@ -25,19 +26,6 @@ function utils.colorize(text, color)
     return (colors[color] or colors.reset) .. text .. colors.reset
 end
 
-function utils.customError(errorTitle, errorMessage)
-    local function throwError()
-        error(utils.colorize(errorTitle, "red") .. ": " .. utils.colorize(errorMessage, "magenta"))
-    end
-
-    local function errorHandler(err)
-        return utils.colorize("Caught Error: ", "red") .. utils.colorize(err, "yellow")
-    end
-
-    local ok, result = xpcall(throwError, errorHandler)
-    return ok, result
-end
-
 function utils.getPlatform()
     local sep = package.config:sub(1, 1)
 
@@ -59,48 +47,26 @@ function utils.winPathFormat(path)
     end
 end
 
-local function includes(contents, value)
-    if contents then
-        if value and value ~= "" and type(value) == "string" then
-            if contents[value] then
-                return true
-            else
-                return false
-            end
-        end
-    end
-end
-
-function utils.getFile(path, extension)
+function utils.getFile(path)
     if path and type(path) == "string" then
         local file = io.open(utils.winPathFormat(path), "r")
         if file then
-            if extension and extension ~= "" then
-                if includes(config.accepted_extensions, extension) then
-                    local ext = string.match(path, "%." .. string.format("%s$", extension))
-                    local content = file:read("*a")
-                    file:close()
-                    if content and content ~= "" then
-                        return {
-                            extension = ext,
-                            content = content
-                        }
-                    else
-                        return select(2, utils.customError("Content Error",
-                            "File content is empty!"))
-                    end
-                else
-                    return select(2, utils.customError("Extension Error", "Extension is not supported!"))
-                end
+            local ext = string.match(path, "%.(.+)")
+            local content = file:read("*a")
+            file:close()
+            if content and content ~= "" then
+                return {
+                    extension = ext,
+                    content = content
+                }
             else
-                return select(2, utils.customError("Extension Error",
-                    "Extension is not provided! Please provide the extension"))
+                errors.contentError()
             end
         else
-            return select(2, utils.customError("Error", "Path must be defined and a string type"))
+            errors.fileError()
         end
     else
-        return select(2, utils.customError("Error", "Path must be defined and a string type"))
+        errors.fileError()
     end
 end
 
@@ -129,7 +95,7 @@ function utils.getFiles(path)
         end
         return files
     else
-        return select(2, utils.customError("Error", "Path must be defined and a string type"))
+        errors.fileError()
     end
 end
 
@@ -181,15 +147,15 @@ function utils.getContent(path)
     if path and path ~= "" then
         local file = io.open(path, "r")
         if file then
-            local content = file:read("a")
+            local content = file:read("*a")
             file:close()
             if content ~= "" then
                 return content
             else
-                print(select(2, utils.customError("Content Error", "Content is empty!")))
+                errors.contentError()
             end
         else
-            print(select(2, utils.customError("File Error", "File is not found!")))
+            errors.fileError()
         end
     end
 end
