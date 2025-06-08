@@ -30,7 +30,7 @@ local function handleAttr(content, attr, sep)
                     else
                         return select(2, errors.customError("Special Error", "Unrecognized special attribute"))
                     end
-                    local safeValue = errors.escape_pattern(v)
+                    local safeValue = utils.escape_pattern(v)
                     content = string.gsub(content, safeValue, specialValue)
                 else
                     return select(2, errors.customError("Error", "Separator is undefined or invalid"))
@@ -155,5 +155,24 @@ function Parser:toSVG(targetFile, outputPath, outputFile)
         errors.fileError()
     end
 end
+
+-- function Parser:deepJSX()
+--     local file = io.open("./generated/Icons.jsx", "r")
+--     if file then
+--         local content = file:read("*a")
+--         file:close()
+--         if content and content ~= "" then
+--             local components = {}
+--             for comp in string.gmatch(content, "export%s+function%s+[%w_]+%s*%b()%s*%b{}") do
+--                 table.insert(components, comp)
+--             end
+--             -- for _, v in ipairs(components) do
+--             -- end
+--                 print(components[1])
+--         end
+--     end
+-- end
+
+-- Parser:deepJSX()
 
 return Parser
