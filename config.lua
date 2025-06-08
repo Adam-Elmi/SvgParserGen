@@ -14,13 +14,4 @@ local config = {
   prettify = false
 }
 
-
-function config.set(key, value)
-  config[key] = value
-end
-
-function config.get(key)
-  return config[key]
-end
-
 return config
