@@ -32,12 +32,13 @@ end
 function commands.toJsxFile()
     if config and config.default_output_location and config.default_output_location ~= "" then
         if args[1] == "-jsx" and args[2] and (args[3] == "-o" or args[3] == "--output") and args[4] and args[5] == "-c" then
-            local file_path = config.default_output_location .. "/" .. args[4] .. "." .. "jsx"
+            local file_path = config.default_output_location .. "/" .. (config.use_same_name and utils.getFileName(args[2]) or args[4]) .. "." .. "jsx"
             local file = io.open(file_path, "r")
             local tarFile = utils.getFile(args[2])
             if string.match(args[2], "%.svg$") and tarFile.content and tarFile.content ~= "" then
                 utils.getFileDetails(file, args)
-                return parser:toJSX(args[2], config.default_output_location, args[4], args[6] or "custom")
+                return parser:toJSX(args[2], config.default_output_location,
+                    (config.use_same_name and utils.getFileName(args[2]) or args[4]), args[6] or "Custom")
             else
                 errors.extensionError(args[2], "svg", tarFile.extension)
             end
