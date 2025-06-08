@@ -1,30 +1,8 @@
 local config = require("config")
 local errors = require("core.errors")
+local ansi = require("core.ansi")
 
 local utils = {}
-
-function utils.colorize(text, color)
-    local colors = {
-        reset = "\27[0m",
-        red = "\27[31m",
-        green = "\27[32m",
-        yellow = "\27[33m",
-        blue = "\27[34m",
-        magenta = "\27[35m",
-        cyan = "\27[36m",
-        white = "\27[37m",
-        black = "\27[30m",
-        bright_black = "\27[90m",
-        bright_green = "\27[92m",
-        bright_yellow = "\27[93m",
-        bright_blue = "\27[94m",
-        bright_white = "\27[97m",
-    }
-
-    text = text or ""
-
-    return (colors[color] or colors.reset) .. text .. colors.reset
-end
 
 function utils.getPlatform()
     local sep = package.config:sub(1, 1)
@@ -70,9 +48,9 @@ function utils.getFile(path)
     end
 end
 
-local function getFileName(text)
+function utils.getFileName(text)
     if text and type(text) == "string" then
-        for file in string.gmatch(text, "[%w%._%-]+%.svg") do
+        for file in string.gmatch(text, "([^/]+)%.%w+$") do
             return file
         end
     end
@@ -87,7 +65,7 @@ function utils.getFiles(path)
             local handle = io.popen("dir " .. utils.winPathFormat(path))
             if handle then
                 for line in handle:lines() do
-                    files[index] = getFileName(line)
+                    files[index] = utils.getFileName(line)
                     index = index + 1
                 end
                 handle:close()
@@ -140,7 +118,7 @@ function utils.addPadding(items, label, len)
         end
     end
     local pad_len = len and (maxLength - #label + len) or maxLength - #label
-    return utils.colorize(label, "magenta") .. string.rep(" ", pad_len)
+    return ansi.colorize(label, "magenta") .. string.rep(" ", pad_len)
 end
 
 function utils.getContent(path)
@@ -172,17 +150,17 @@ function utils.getFileDetails(file, args)
     local now = os.date("*t")
     local date_str = string.format("%04d-%02d-%02d", now.year, now.month, now.day)
     local time_str = string.format("%02d:%02d:%02d", now.hour, now.min, now.sec)
-    print(utils.colorize("File Details:", "magenta"))
-    print("  Name: " .. utils.colorize(args[4] .. "." .. ext, "bright_yellow"))
-    print("  Location: " .. utils.colorize(location, "blue"))
-    print("  Extension: " .. utils.colorize(ext, "cyan"))
-    print("  Size: " .. utils.colorize(string.format("%.2f kb", size / 1024), "bright_green"))
-    print("  Date: " .. utils.colorize(date_str, "bright_blue"))
-    print("  Time: " .. utils.colorize(time_str, "bright_blue"))
-    print(utils.colorize(
+    print(ansi.colorize(
         "Succefully created " ..
-        utils.colorize(args[4] .. "." .. config.default_output_type, "bright_yellow") ..
-        " in " .. utils.colorize(config.default_output_location, "blue"), "bright_green"))
+        ansi.colorize(args[4] .. "." .. config.default_output_type, "bright_yellow") ..
+        " in " .. ansi.colorize(config.default_output_location, "blue"), "bright_green"))
+    print(ansi.colorize("File Details:", "magenta"))
+    print("  Name: " .. ansi.colorize((config.use_same_name and utils.getFileName(args[2]) or args[4]) .. "." .. ext, "bright_yellow"))
+    print("  Location: " .. ansi.colorize(location, "blue"))
+    print("  Extension: " .. ansi.colorize(ext, "cyan"))
+    print("  Size: " .. ansi.colorize(string.format("%.2f kb", size / 1024), "bright_green"))
+    print("  Date: " .. ansi.colorize(date_str, "bright_blue"))
+    print("  Time: " .. ansi.colorize(time_str, "bright_blue"))
 end
 
 function utils.lastIndex(str, substr)
