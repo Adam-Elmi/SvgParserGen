@@ -1,14 +1,14 @@
-local utils = require("core.utils")
+local ansi = require("core.ansi")
 
 local errors = {}
 
 function errors.customError(errorTitle, errorMessage)
     local function throwError()
-        error(utils.colorize(errorTitle, "red") .. ": " .. utils.colorize(errorMessage, "magenta"))
+        error(ansi.colorize(errorTitle, "red") .. ": " .. ansi.colorize(errorMessage, "magenta"))
     end
 
     local function errorHandler(err)
-        return utils.colorize("Caught Error: ", "red") .. utils.colorize(err, "yellow")
+        return ansi.colorize("Caught Error: ", "red") .. ansi.colorize(err, "yellow")
     end
 
     local ok, result = xpcall(throwError, errorHandler)
