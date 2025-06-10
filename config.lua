@@ -1,7 +1,6 @@
 local allow_typescript = false
 
 local config = {
-  optimize_with_svgo = true,
   default_output_type = allow_typescript and "tsx" or "jsx",
   default_output_location = "./generated",
   use_specified_location = true,
@@ -11,7 +10,6 @@ local config = {
   use_same_name = true,
   template_attributes_to_include = {width = true, height = true},
   use_windows_format_path = true,
-  prettify = false
 }
 
 return config
