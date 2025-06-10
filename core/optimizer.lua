@@ -1,1 +1,0 @@
-os.execute("npx svgo ./core/example/test.svg -o ./core/example/test.optimized.svg")
