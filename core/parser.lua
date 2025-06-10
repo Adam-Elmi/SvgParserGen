@@ -156,23 +156,4 @@ function Parser:toSVG(targetFile, outputPath, outputFile)
     end
 end
 
--- function Parser:deepJSX()
---     local file = io.open("./generated/Icons.jsx", "r")
---     if file then
---         local content = file:read("*a")
---         file:close()
---         if content and content ~= "" then
---             local components = {}
---             for comp in string.gmatch(content, "export%s+function%s+[%w_]+%s*%b()%s*%b{}") do
---                 table.insert(components, comp)
---             end
---             -- for _, v in ipairs(components) do
---             -- end
---                 print(components[1])
---         end
---     end
--- end
-
--- Parser:deepJSX()
-
 return Parser
