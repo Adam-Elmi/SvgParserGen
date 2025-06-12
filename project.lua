@@ -1,6 +1,6 @@
 return {
     name = "SvgParserGen",
-    description = "A command-line tool for optimizing SVG files and generating SVG component code.",
+    description = "A command-line tool for generating SVG component code.",
     version = "0.1.0",
     author = "Adam Elmi",
     license = "MIT",

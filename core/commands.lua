@@ -3,6 +3,7 @@ local utils = require("core.utils")
 local project = require("project")
 local parser = require("core.parser")
 local errors = require("core.errors")
+local ansi = require("core.ansi")
 
 local commands = {}
 local args = arg or {}
@@ -11,20 +12,20 @@ function commands.info()
     if project then
         if args[1] == "-v" or args[1] == "--version" or args[1] == "--name" or args[1] == "-d" or args[1] == "--description" then
             print(
-                utils.colorize(project.name, "bright_blue") .. " - " ..
-                utils.colorize(project.version, "green") .. " \n- " ..
-                utils.colorize(project.description, "bright_blue")
+                ansi.colorize(project.name, "bright_blue") .. " - " ..
+                ansi.colorize(project.version, "green") .. " \n- " ..
+                ansi.colorize(project.description, "bright_blue")
             )
         elseif args[1] == "--author" then
-            print(utils.colorize(project.author, "bright_blue"))
+            print(ansi.colorize(project.author, "bright_blue"))
         elseif args[1] == "--license" then
-            print(utils.colorize(project.license, "green"))
+            print(ansi.colorize(project.license, "green"))
         elseif args[1] == "-gh" or args[1] == "--github" then
-            print(utils.addPadding(project.github, "username:", 2) .. utils.colorize(project.github.username, "blue"))
-            print(utils.addPadding(project.github, "repo:", 2) .. utils.colorize(project.github.repo, "blue"))
-            print(utils.addPadding(project.github, "homepage:", 2) .. utils.colorize(project.github.homepage, "blue"))
-            print(utils.addPadding(project.github, "readme:", 2) .. utils.colorize(project.github.readme, "blue"))
-            print(utils.addPadding(project.github, "issue:", 2) .. utils.colorize(project.github.issue, "blue"))
+            print(utils.addPadding(project.github, "username:", 2) .. ansi.colorize(project.github.username, "blue"))
+            print(utils.addPadding(project.github, "repo:", 2) .. ansi.colorize(project.github.repo, "blue"))
+            print(utils.addPadding(project.github, "homepage:", 2) .. ansi.colorize(project.github.homepage, "blue"))
+            print(utils.addPadding(project.github, "readme:", 2) .. ansi.colorize(project.github.readme, "blue"))
+            print(utils.addPadding(project.github, "issue:", 2) .. ansi.colorize(project.github.issue, "blue"))
         end
     end
 end
@@ -105,9 +106,9 @@ function commands.run()
             errors.commandError(true, args[1])
         else
             print(
-                utils.colorize(project.name, "bright_blue") .. " - " ..
-                utils.colorize(project.version, "green") .. " \n- " ..
-                utils.colorize(project.description, "bright_blue")
+                ansi.colorize(project.name, "bright_blue") .. " - " ..
+                ansi.colorize(project.version, "green") .. " \n- " ..
+                ansi.colorize(project.description, "bright_blue")
             )
         end
     end

@@ -7,7 +7,7 @@ local config = {
   specified_location = "./src/icons",
   import_as_default = false,
   default_component_name = "",
-  use_same_name = true,
+  use_same_name = false,
   template_attributes_to_include = {width = true, height = true},
   use_windows_format_path = true,
 }

@@ -6,6 +6,7 @@ attributes.kebab_attributes = {
   "stroke-dasharray",
   "stroke-dashoffset",
   "fill-opacity",
+  "fill-rule",
   "stroke-opacity",
   "stop-opacity",
   "color-interpolation",
